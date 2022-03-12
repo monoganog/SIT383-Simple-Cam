@@ -31,7 +31,7 @@ public class WebcamTest : MonoBehaviour
     }
 
     // For saving to the _savepath
-    private string _SavePath = "C:/Users/monog/Documents/Projects/SIT383-FirstProject/Assets/Screenshots/Pic"; //Change the path here!
+    private string _SavePath = Application.persistentDataPath + "Pic"; //Change the path here!
     int _CaptureCounter = 0;
 
     void TakeSnapshot()
