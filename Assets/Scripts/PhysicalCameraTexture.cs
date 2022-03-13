@@ -11,6 +11,8 @@ public class PhysicalCameraTexture : MonoBehaviour
     public Material pictureResultMat;
     public Image lastImage;
 
+    private bool timer = false;
+
 
     private int currentCamera = 0;
     // Start is called before the first frame update
@@ -39,6 +41,14 @@ public class PhysicalCameraTexture : MonoBehaviour
         }
     }
 
+    public void ToggleTimer()
+    {
+        if (timer)
+        {
+            !timer
+        }
+    }
+
     public void NextCamera()
     {
         currentCamera = (currentCamera + 1) %
@@ -63,19 +73,30 @@ public class PhysicalCameraTexture : MonoBehaviour
 
     public void TakePicture()
     {
+        if (timer)
+        {
+            StartCoroutine(TakePictureCoroutine());
+        }
+
+        SavePicture();
+    }
+
+    private void SavePicture(Texture2D texture)
+    {
+        textOutput.text = "Image Saved";
+        System.IO.File.WriteAllBytes(Application.persistentDataPath + "Pic" + _CaptureCounter.ToString() + ".png", texture.EncodeToPNG());
+        ++_CaptureCounter;
+    }
+
+    IEnumerator TakePictureCoroutine()
+    {
         Texture2D pictureResult = new Texture2D(webCamTexture.width, webCamTexture.height);
         pictureResult.SetPixels(webCamTexture.GetPixels());
         pictureResult.Apply();
 
         pictureResultMat.mainTexture = pictureResult;
 
-
-        //lastImage.overrideSprite = Resources.Load<Sprite>("Textures/sprite");
-
-
-        textOutput.text = "Image Saved";
-        System.IO.File.WriteAllBytes(Application.persistentDataPath + "Pic" + _CaptureCounter.ToString() + ".png", pictureResult.EncodeToPNG());
-        ++_CaptureCounter;
+        SavePicture();
     }
 
 
