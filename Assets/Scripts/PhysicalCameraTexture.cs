@@ -5,19 +5,43 @@ using UnityEngine.UI;
 
 public class PhysicalCameraTexture : MonoBehaviour
 {
+    [Header("Camera Settings")]
     public Text textOutput;
     public Material planeMat;
     private WebCamTexture webCamTexture;
     public Material pictureResultMat;
-    public Image lastImage;
 
-    private bool timer = false;
+    [Header("Audio Settings")]
+    public AudioSource audioSource;
+    public AudioClip shutter, timeIncrement;
 
+    [Header("UI Images")]
+    public Image DelayImage;
+    public Text countDownText;
+    public Sprite noneSprite, threeSprite, tenSprite;
 
+    // Private members
+    private int enumIndex = 0;
+    private float timeLeft;
+    private float nextActionTime = 0.0f;
+    private float period = 1f;
+    private int captureCount = 0;
     private int currentCamera = 0;
-    // Start is called before the first frame update
+    private bool countdownEnabled = false;
+
+
+    public enum Delay
+    {
+        none = 0,
+        three = 3,
+        ten = 10
+    }
+    Delay delay = Delay.none;
+
+
     void Start()
     {
+        countDownText.text = "";
         webCamTexture = new WebCamTexture(Screen.width, Screen.height, 60);
         ShowCameras();
 
@@ -30,7 +54,67 @@ public class PhysicalCameraTexture : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //this.transform.rotation *= Quaternion.AngleAxis(30 * Time.deltaTime, new Vector3(1, 2, 3) * 10);
+        if (countdownEnabled)
+        {
+
+            timeLeft -= Time.deltaTime;
+            countDownText.text = (timeLeft).ToString("0");
+
+
+
+            // Play Audio every second
+            if (Time.time > nextActionTime)
+            {
+                nextActionTime += period;
+                audioSource.PlayOneShot(timeIncrement);
+            }
+
+            // Time to take picture
+            if (timeLeft < 1)
+            {
+                TakePicture();
+            }
+        }
+    }
+
+    private void TakePicture()
+    {
+        audioSource.PlayOneShot(shutter);
+        countdownEnabled = false;
+        countDownText.text = "";
+        // Delay over time to take picture
+        Texture2D pictureResult = new Texture2D(webCamTexture.width, webCamTexture.height);
+        pictureResult.SetPixels(webCamTexture.GetPixels());
+        pictureResult.Apply();
+
+        pictureResultMat.mainTexture = pictureResult;
+
+        SavePicture(pictureResult);
+    }
+
+    public void PressDelay()
+    {
+        enumIndex = (enumIndex + 1) % 3;
+
+        switch (enumIndex)
+        {
+            case 0:
+                delay = Delay.none;
+
+                DelayImage.sprite = noneSprite;
+                break;
+
+            case 1:
+                delay = Delay.three;
+                DelayImage.sprite = threeSprite;
+                break;
+
+            case 2:
+                delay = Delay.ten;
+                DelayImage.sprite = tenSprite;
+                break;
+        }
+        Debug.Log(delay.ToString());
     }
 
     private void ShowCameras()
@@ -41,13 +125,8 @@ public class PhysicalCameraTexture : MonoBehaviour
         }
     }
 
-    public void ToggleTimer()
-    {
-        if (timer)
-        {
-            !timer
-        }
-    }
+
+
 
     public void NextCamera()
     {
@@ -62,43 +141,23 @@ public class PhysicalCameraTexture : MonoBehaviour
 
     }
 
-    public Texture2D heightmap;
-    public Vector3 size = new Vector3(100, 10, 100);
 
 
 
-    // For saving to the _savepath
 
-    int _CaptureCounter = 0;
-
-    public void TakePicture()
+    public void PressTakePicture()
     {
-        if (timer)
-        {
-            StartCoroutine(TakePictureCoroutine());
-        }
-
-        SavePicture();
+        nextActionTime = Time.time;
+        timeLeft = (int)delay;
+        countdownEnabled = true;
     }
 
     private void SavePicture(Texture2D texture)
     {
         textOutput.text = "Image Saved";
-        System.IO.File.WriteAllBytes(Application.persistentDataPath + "Pic" + _CaptureCounter.ToString() + ".png", texture.EncodeToPNG());
-        ++_CaptureCounter;
+        System.IO.File.WriteAllBytes(Application.persistentDataPath + "/Pic" + captureCount.ToString() + ".png", texture.EncodeToPNG());
+        Debug.Log(Application.persistentDataPath);
+        ++captureCount;
     }
-
-    IEnumerator TakePictureCoroutine()
-    {
-        Texture2D pictureResult = new Texture2D(webCamTexture.width, webCamTexture.height);
-        pictureResult.SetPixels(webCamTexture.GetPixels());
-        pictureResult.Apply();
-
-        pictureResultMat.mainTexture = pictureResult;
-
-        SavePicture();
-    }
-
-
 
 }
