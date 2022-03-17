@@ -1402,15 +1402,13 @@ MonoBehaviour:
   planeMat: {fileID: 2100000, guid: 8e077144ed85e6e4f916db31914e583d, type: 2}
   pictureResultMat: {fileID: 2100000, guid: 0af62145faaa02d41b14519490a3ca7c, type: 2}
   audioSource: {fileID: 1573061662}
-  shutter: {fileID: 8300000, guid: 4a969ef79481d9c458d445c1af143f9d, type: 3}
+  shutter: {fileID: 8300000, guid: e74e7d3f10e582a40bb793e074115150, type: 3}
   timeIncrement: {fileID: 8300000, guid: f60df27f09064e448a6acc230e7b2769, type: 3}
   DelayImage: {fileID: 628437827}
   countDownText: {fileID: 690789040}
   noneSprite: {fileID: 21300000, guid: a7078271148adf341bf40c7a2323db7b, type: 3}
   threeSprite: {fileID: 21300000, guid: f370a6956292d8a469ba9bdff84dd916, type: 3}
   tenSprite: {fileID: 21300000, guid: d0cf88966ededf6428c76dbf61420bd5, type: 3}
-  heightmap: {fileID: 0}
-  size: {x: 100, y: 10, z: 100}
 --- !u!82 &1573061662
 AudioSource:
   m_ObjectHideFlags: 0
