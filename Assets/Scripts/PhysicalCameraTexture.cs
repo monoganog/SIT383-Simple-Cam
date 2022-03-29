@@ -11,6 +11,8 @@ public class PhysicalCameraTexture : MonoBehaviour
     private WebCamTexture webCamTexture;
     public Material pictureResultMat;
 
+    public GameObject cameraPlaneMain, cameraPlanePreview;
+
     [Header("Audio Settings")]
     public AudioSource audioSource;
     public AudioClip shutter, timeIncrement;
@@ -42,13 +44,16 @@ public class PhysicalCameraTexture : MonoBehaviour
     void Start()
     {
         countDownText.text = "";
-        webCamTexture = new WebCamTexture(Screen.width, Screen.height, 60);
+        webCamTexture = new WebCamTexture();
         ShowCameras();
-
+        PrintDebugText("Texture rotated to: " + webCamTexture.videoRotationAngle);
+        PrintDebugText("Is Video Mirrored: " + webCamTexture.videoVerticallyMirrored);
+        PrintDebugText("Video Dimensions: " + webCamTexture.dimension);
 
         planeMat.mainTexture = webCamTexture;
         webCamTexture.Play();
 
+        PrintDebugText("Scene started");
     }
 
     // Update is called once per frame
@@ -56,11 +61,8 @@ public class PhysicalCameraTexture : MonoBehaviour
     {
         if (countdownEnabled)
         {
-
             timeLeft -= Time.deltaTime;
             countDownText.text = (timeLeft).ToString("0");
-
-
 
             // Play Audio every second
             if (Time.time > nextActionTime)
@@ -77,12 +79,21 @@ public class PhysicalCameraTexture : MonoBehaviour
         }
     }
 
+    public void RotateCamera()
+    {
+
+        Vector3 rotateAmmount = new Vector3(90, 0,0);
+        cameraPlaneMain.transform.rotation *= Quaternion.Euler(0, 90, 0);
+        cameraPlanePreview.transform.rotation *= Quaternion.Euler(0, 90, 0);
+    }
+
     private void TakePicture()
     {
         audioSource.PlayOneShot(shutter);
+
         countdownEnabled = false;
         countDownText.text = "";
-        // Delay over time to take picture
+
         Texture2D pictureResult = new Texture2D(webCamTexture.width, webCamTexture.height);
         pictureResult.SetPixels(webCamTexture.GetPixels());
         pictureResult.Apply();
@@ -115,48 +126,57 @@ public class PhysicalCameraTexture : MonoBehaviour
                 break;
         }
         Debug.Log(delay.ToString());
+        PrintDebugText("Delay set to " + delay.ToString());
+    }
+
+    public void PrintDebugText(string message)
+    {
+        textOutput.text += "\n\n" + message;
     }
 
     private void ShowCameras()
     {
         foreach (WebCamDevice d in WebCamTexture.devices)
         {
-            textOutput.text += d.name + (d.name == webCamTexture.deviceName ? "*" : "" + "\n");
+            //textOutput.text += d.name + (d.name == webCamTexture.deviceName ? "*" : "" + "\n");
+            //PrintDebugText(d.name + " Camera selected");
         }
     }
-
-
-
-
     public void NextCamera()
     {
+        PrintDebugText("Switch camera pressed");
+
+        
         currentCamera = (currentCamera + 1) %
             WebCamTexture.devices.Length;
 
         webCamTexture.Stop();
+        PrintDebugText("Camera selected is: " + WebCamTexture.devices[currentCamera].name);
+
         webCamTexture.deviceName = WebCamTexture.devices[currentCamera].name;
-        webCamTexture.Play();
-        ShowCameras();
-
-
+        if (webCamTexture.isReadable && !webCamTexture.isPlaying)
+        {
+            
+            webCamTexture.Play();
+        }
+   
+        //ShowCameras();
     }
-
-
-
-
 
     public void PressTakePicture()
     {
+        PrintDebugText("Take picture pressed");
         nextActionTime = Time.time;
         timeLeft = (int)delay;
         countdownEnabled = true;
+       
+
     }
 
     private void SavePicture(Texture2D texture)
     {
-        textOutput.text = "Image Saved";
+        PrintDebugText("Image Saved at: " + Application.persistentDataPath);
         System.IO.File.WriteAllBytes(Application.persistentDataPath + "/Pic" + captureCount.ToString() + ".png", texture.EncodeToPNG());
-        Debug.Log(Application.persistentDataPath);
         ++captureCount;
     }
 
