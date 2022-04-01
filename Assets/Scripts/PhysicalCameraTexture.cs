@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,7 +28,7 @@ public class PhysicalCameraTexture : MonoBehaviour
     private int captureCount = 0;
     private int currentCamera = 0;
     private bool countdownEnabled = false;
-
+    private bool flipped = false;
 
     public enum Delay
     {
@@ -82,9 +80,16 @@ public class PhysicalCameraTexture : MonoBehaviour
     public void RotateCamera()
     {
 
-        Vector3 rotateAmmount = new Vector3(90, 0,0);
+        Vector3 rotateAmmount = new Vector3(90, 0, 0);
         cameraPlaneMain.transform.rotation *= Quaternion.Euler(0, 90, 0);
         cameraPlanePreview.transform.rotation *= Quaternion.Euler(0, 90, 0);
+    }
+    public void FlipCamera()
+    {
+
+        cameraPlaneMain.transform.localScale = new Vector3(-cameraPlaneMain.transform.localScale.x, cameraPlaneMain.transform.localScale.y, cameraPlaneMain.transform.localScale.z);
+        cameraPlanePreview.transform.localScale = new Vector3(-cameraPlanePreview.transform.localScale.x, cameraPlanePreview.transform.localScale.y, cameraPlanePreview.transform.localScale.z);
+
     }
 
     private void TakePicture()
@@ -101,6 +106,7 @@ public class PhysicalCameraTexture : MonoBehaviour
         pictureResultMat.mainTexture = pictureResult;
 
         SavePicture(pictureResult);
+        cameraPlanePreview.SetActive(true);
     }
 
     public void PressDelay()
@@ -146,7 +152,7 @@ public class PhysicalCameraTexture : MonoBehaviour
     {
         PrintDebugText("Switch camera pressed");
 
-        
+
         currentCamera = (currentCamera + 1) %
             WebCamTexture.devices.Length;
 
@@ -156,10 +162,10 @@ public class PhysicalCameraTexture : MonoBehaviour
         webCamTexture.deviceName = WebCamTexture.devices[currentCamera].name;
         if (webCamTexture.isReadable && !webCamTexture.isPlaying)
         {
-            
+
             webCamTexture.Play();
         }
-   
+
         //ShowCameras();
     }
 
@@ -169,7 +175,7 @@ public class PhysicalCameraTexture : MonoBehaviour
         nextActionTime = Time.time;
         timeLeft = (int)delay;
         countdownEnabled = true;
-       
+
 
     }
 
