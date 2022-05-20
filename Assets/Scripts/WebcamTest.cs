@@ -3,6 +3,7 @@ using System.Collections;
 
 public class WebcamTest : MonoBehaviour
 {
+    // testing github in the browser
     public string deviceName;
     WebCamTexture wct;
     public Material cubeMat;
@@ -18,6 +19,7 @@ public class WebcamTest : MonoBehaviour
     }
 
     // For photo varibles
+
 
     public Texture2D heightmap;
     public Vector3 size = new Vector3(100, 10, 100);
