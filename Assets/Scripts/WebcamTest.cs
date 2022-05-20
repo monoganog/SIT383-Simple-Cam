@@ -4,6 +4,7 @@ using System.Collections;
 public class WebcamTest : MonoBehaviour
 {
     // testing github in the browser
+    // editing even more directly
     public string deviceName;
     WebCamTexture wct;
     public Material cubeMat;
